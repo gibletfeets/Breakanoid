@@ -31,6 +31,8 @@ class Block
     }
   }
   
+  // Currently work in progress
+  
   PVector testCollision(PVector query)
   {
     float testX,testY;
@@ -42,9 +44,28 @@ class Block
     float distance = sqrt(sq(distX)+sq(distY));
     if (distance <= ballWidth)
     {
-      //return new PVector(xNorm,yNorm);
+      float dy = abs(query.y-pos.y)-size.y, dx = abs(query.x-pos.x)-size.x;
+      if (dx < 0)        // check if ball will reflect on Y
+      {
+        if (query.y < pos.y) return new PVector(0,-1);
+        else                 return new PVector(0,1);
+      } else if (dy < 0) // check if ball will reflect on X
+      {
+        if (query.x < pos.x) return new PVector(-1,0);
+        else                 return new PVector(1,0);
+      } else             // ball is hitting from a corner
+      {
+        // weird corner norm case. results could be... exciting!
+        // basically returns a surface normal that would be equivalent to
+        // the vector pointing from the corner to the center of the 
+        // circle
+        return query.copy().sub(new PVector(testX,testY)).normalize();
+      }
     }
-    return new PVector(0,0);
+    else
+    {
+      return new PVector(0,0);
+    }
   }
 }
 
