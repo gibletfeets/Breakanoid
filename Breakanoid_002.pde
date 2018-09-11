@@ -43,9 +43,6 @@ void keyPressed()
 {
   switch(key) 
   {
-    // press key 'r' to start recording 
-    // after the recording has finished, the gif
-    // will be saved to disc automatically
     case('r'): resetBlocks(); break;
     case('f'): 
     {
