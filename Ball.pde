@@ -52,14 +52,34 @@ class Ball
       // such that it accounts for n number of bounces, instead of just 2. right now it outputs when there is a speed desync
       // caused by this behavior, for purposes related to sorting out what is causing abberations in the predicted pathway
       
-      PVector remainder = nextBounce.vel.copy().setMag(vel.mag()-PVector.dist(pos, nextBounce.pos));
-      if (nextBounce.childBounce != null && remainder.mag() > PVector.dist(nextBounce.childBounce.pos,nextBounce.pos)) 
+      // original code
+      
+      /*
+      PVector remainingDistance = nextBounce.vel.copy().setMag(vel.mag()-PVector.dist(pos, nextBounce.pos));
+      if (nextBounce.childBounce != null && remainingDistance.mag() > PVector.dist(nextBounce.childBounce.pos,nextBounce.pos)) 
       {
         print(frameCount);
         print(": Speed desync. distance: ");
-        println(remainder.mag() - PVector.dist(nextBounce.childBounce.pos,nextBounce.pos));
+        println(remainingDistance.mag() - PVector.dist(nextBounce.childBounce.pos,nextBounce.pos));
       }
-      pos.set(nextBounce.pos.copy().add(remainder));
+      */
+      
+      // current attempt, feels like it has issues.
+      
+      float remainingDistance = vel.mag()-PVector.dist(pos, nextBounce.pos);
+      while (nextBounce.childBounce != null 
+         && remainingDistance > PVector.dist(nextBounce.pos,nextBounce.childBounce.pos))
+      {
+        print(frameCount);
+        print(": Speed desync. distance: ");
+        println(remainingDistance - PVector.dist(nextBounce.childBounce.pos,nextBounce.pos));
+        remainingDistance -= PVector.dist(nextBounce.pos,nextBounce.childBounce.pos);
+        pos = nextBounce.pos;
+        nextBounce = nextBounce.childBounce;
+      }   
+      
+      
+      pos.set(nextBounce.pos.copy().add(nextBounce.vel.copy().setMag(remainingDistance)));
       vel.set(nextBounce.vel);
       if (nextBounce.assignedBlock > -1) 
       {
@@ -119,7 +139,7 @@ class Ball
         // instead of a circle/rectangle collision check, which would make matters more accurate.
         // with that in mind, there's some rather fucky logic going on for handling cases where the ball hits a corner, and some hacky
         // solution for a weird trajectory issue that would happen when the ball is near-orthogonal to the surface normal it was getting
-        // upon collision.
+        // upon collision with the paddle. in other words, here be dragons
         
         if (cursor.x +ballWidth > player.pos.x - player.size.x //left edge
           &&cursor.x -ballWidth < player.pos.x + player.size.x //right edge

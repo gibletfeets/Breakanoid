@@ -13,7 +13,7 @@ final int paddleLine = screenHeight - 40;
 //probably should be set somewhat low, just set really high for the sake of interesting visualization and overall debugging
 //but has very little positive effect if any by being set arbitrarily high, and increases resource consumption
 
-final int bounceDepth = 50;
+final int bounceDepth = 100;
 
 boolean debugMode, debugPaths;
 PFont gameFont;
@@ -43,6 +43,9 @@ void keyPressed()
 {
   switch(key) 
   {
+    // press key 'r' to start recording 
+    // after the recording has finished, the gif
+    // will be saved to disc automatically
     case('r'): resetBlocks(); break;
     case('f'): 
     {
