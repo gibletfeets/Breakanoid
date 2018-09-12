@@ -1,11 +1,8 @@
 # Breakanoid
 Implementation of breakout/arkanoid style game in Processing. Heavily in progress and broken.
 
-Press F to toggle debug visuals.
+Left/Right or A/D to move.
 
-Press P to toggle ball trajectories.
+Click to spawn the ball
 
-Press R to reset blocks
-
-Click + drag to spawn ball with vector pointing in direction specified by arrow.
-
+Press F to show debug info
