@@ -69,11 +69,6 @@ void draw()
       if (gameBall != null && gameBall.currentCombo > 1)
       text("Combo: " + str(gameBall.currentCombo),gameWidth+marginSize,80);
     }
-    if (mousePressed)
-    {
-      gameBall = new ballObject(new vec2(mouseX,mouseY),new vec2(random(TAU/8,TAU/2 - TAU/8)));
-    }
-    
     //wow this really needs to be made into a switch statement
     if (keyPressed)
     {
