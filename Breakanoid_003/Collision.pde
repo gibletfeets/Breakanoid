@@ -13,7 +13,7 @@ class ballObject
   {
     pos = a.copy();
     vel = b.copy();
-    vel.setMag(5);
+    vel.setMag(7);
     isAlive = true;
   }
   
@@ -42,8 +42,9 @@ class ballObject
               ballFX.generateParticles(blockList[nextBounce.assignedBlock].pos,blockList[nextBounce.assignedBlock].blockColor);
               blockList[nextBounce.assignedBlock].pos.y = -20;
               jitterBlocks(pos);
+              blocksRemaining--;
               currentCombo++;
-              gameScore += currentCombo*50;
+              gameScore += currentCombo*5*(level+1);
             }
             else if (nextBounce.assignedBlock == -2)
             {
@@ -67,6 +68,7 @@ class ballObject
       }
       float dc = 0 - colorMap;
       colorMap += 0.01 * dc;
+      noStroke();
       fill(lerpColor(color(255,0,0),color(255,255,255),colorMap));
       ellipse (pos.x,pos.y,ballWidth,ballWidth);
     }
@@ -102,7 +104,7 @@ bounceEvent plotTrajectory(vec2 a,vec2 b, int depth)
   
   while (moving)
   {
-    if(cursor.y < screenHeight/2)
+    if(cursor.y < 7*marginSize+blocksperColumn*blockHeight)
     {
         for(int i = 0; i < blockList.length; i++)
         {
@@ -117,14 +119,14 @@ bounceEvent plotTrajectory(vec2 a,vec2 b, int depth)
         }
     }
     //make sure cursor is in relevant area before doing complex ellipse math
-    if(cursor.y < testBedPaddle.pos.y + 20 && cursor.y > testBedPaddle.pos.y - 20)
+    if(cursor.y < playerPaddle.pos.y + 20 && cursor.y > playerPaddle.pos.y - 20)
     {
-      if (testBedPaddle.getDistance(new vec2(cursor.x+norm.x,cursor.y+norm.y)) < ballWidth)
+      if (playerPaddle.getDistance(new vec2(cursor.x+norm.x,cursor.y+norm.y)) < ballWidth)
       {
         //touch paddle
         moving = false;
         blockID = -2;
-        norm = testBedPaddle.getNormal(cursor);
+        norm = playerPaddle.getNormal(cursor);
       }
     }
     if (cursor.x + norm.x - ballWidth < 0 || cursor.x + norm.x + ballWidth > gameWidth)
@@ -149,11 +151,10 @@ bounceEvent plotTrajectory(vec2 a,vec2 b, int depth)
     }
   }
   
-  if (debugMode) line(a.x,a.y,cursor.x,cursor.y);
+  line(a.x,a.y,cursor.x,cursor.y);
   depth--;
   vec2 newVelocity = reflectVector(b,norm);
   bounceEvent result = new bounceEvent(cursor,newVelocity,depth);
-  println (frameRate);
   if (blockID != -1) result.assignedBlock = blockID;
   if (norm.mag() > 0) return result;
   else                return new bounceEvent(cursor,new vec2(0,0),0);
