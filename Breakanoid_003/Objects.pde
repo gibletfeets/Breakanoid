@@ -6,26 +6,31 @@ class blockObject
   color blockColor;
   int collisionID = -1;
   int jitter = 0;
+  int timer;
+  float yTarget;
+  boolean inPosition = false;
   
   blockObject(vec2 a, color b)
   {
+    pos =  new vec2(a.x,-20);
+    yTarget = a.y;
     specialOffset = int(random(0,100));
     blockColor = b;
-    pos = a.copy();
+    timer = int(random(0, 90));
   }
   
   void display()
   {
-    strokeWeight(4);
+    strokeWeight(3);
     strokeJoin(BEVEL);
     stroke(color(red(blockColor)/2,
                  green(blockColor)/2,
                  blue(blockColor)/2));
     fill(blockColor);
     if ((frameCount+specialOffset)%2 == 0) jitterVec = new vec2(random(0,TAU));
-    if (jitter > 20) 
+    if (jitter > 0) 
     {
-      jitterVec.setMag(jitter/20);
+      jitterVec.setMag(float(jitter)/20);
       jitter --;
       rect(pos.x+jitterVec.x,pos.y+jitterVec.y,size.x-2,size.y-2);
     }
@@ -36,6 +41,24 @@ class blockObject
     }
     strokeWeight(1);
     noStroke();
+  }
+  
+  void dropIn() 
+  {
+    if (timer != 0) 
+    {
+      timer--;
+      return;
+    } else 
+    {
+      float dy = yTarget - pos.y;
+      pos.y += dy*0.3;
+      if (dy < 1) 
+      {
+        pos.y = yTarget;
+        inPosition = true;
+      }
+    }
   }
   
   float getDistance(vec2 query)
@@ -75,16 +98,19 @@ class blockObject
 
 void defineBlocks()
 {
+  blocksDropped = false;
+  blocksRemaining = blocksperColumn*blocksperRow;
   for(int i = 0; i < blocksperColumn; i++)
   {
     for (int k = 0; k < blocksperRow; k++)
     {
       blockList[i*blocksperRow + k] = new blockObject(new vec2(marginSize/2+blockWidth/2+blockWidth*k,
                                                              6*marginSize+blockHeight*i),
-                                          blockColors[(i*blocksperRow+k)%blockColors.length]);
+                                          blockColors[level%blockColors.length][(i*blocksperRow+k)%5]);
     }
   }
 }
+
 void displayBlocks()
 {
   for(int i = 0; i < blockList.length; i++)
@@ -92,6 +118,7 @@ void displayBlocks()
     blockList[i].display();
   }
 }
+
 void refreshBlocks()
 {
   for(int i = 0; i < blockList.length; i++)
@@ -99,6 +126,7 @@ void refreshBlocks()
     blockList[i].collisionID = -1;
   }
 }
+
 void jitterBlocks(vec2 query)
 {
   for(int i = 0; i < blockList.length; i++)
@@ -108,11 +136,26 @@ void jitterBlocks(vec2 query)
   }
 }
 
+void dropBlocks()
+{
+  int numberComplete = 0;
+  for (int i = 0; i < blocksperColumn; i++)
+  {
+    for (int k = 0; k < blocksperRow; k++)
+    {
+      blockList[k+i*blocksperRow].dropIn();
+      blockList[k+i*blocksperRow].display();
+      if (blockList[k+i*blocksperRow].inPosition) numberComplete++;
+    }
+  }
+  blocksDropped = (numberComplete == blocksperColumn * blocksperRow);
+}
+
 class paddleObject
 {
   vec2 pos = new vec2(0,0);
   vec2 size = new vec2(0,0);
-  float xTarget;
+  float xTarget = gameWidth/2;
   float easing = 0.2;
   rectObject paddleBox;
   
@@ -142,13 +185,30 @@ class paddleObject
   
   void display()
   {
-    fill(255);
+    fill(#A9B2AB);
     noStroke();
     ellipse(pos.x,pos.y,size.x,size.y); 
     rect(paddleBox.pos.x, paddleBox.pos.y,
          paddleBox.size.x,paddleBox.size.y);
+    fill(40);
+    rect(pos.x,pos.y,size.x/2,4);
+    ellipse(pos.x,pos.y-4,size.x/2,4);
+    ellipse(pos.x,pos.y+4,size.x/2,2);
     fill(255,0,0);
-    if (debugMode) ellipse(xTarget,pos.y,5,5);
+    if (gameBall != null)  
+    {
+      vec2 relative = new vec2(gameBall.pos.x-pos.x,gameBall.pos.y-pos.y);
+      relative.x = map(relative.x,-pos.x,pos.x,-size.x/2*0.9,size.x/2*0.9);
+      ellipse(constrain(xTarget+((pos.x+size.x/2 - 6)*(relative.x)/gameWidth),
+                                             pos.x-(size.x/2 - 6),
+                                             pos.x+(size.x/2 - 6)),
+                                             map(gameBall.pos.y, 0, 800, 
+                                             pos.y-4 - (4/(size.x/2) * sqrt(sq(size.x/2)-sq(relative.x))),
+                                             pos.y-4 + (2/(size.x/2) * sqrt(sq(size.x/2)-sq(relative.x))))+3, 
+                                             3,3);
+
+    }else                   ellipse(constrain(xTarget,pos.x-(size.x/2 - 6),pos.x+(size.x/2 - 6)),pos.y,3,3);
+   
   }
   
   vec2 closestPoint(vec2 query)

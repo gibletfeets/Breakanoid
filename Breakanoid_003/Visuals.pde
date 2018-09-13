@@ -9,6 +9,7 @@ void drawArrow(vec2 start, vec2 end)
   arrow.rotate(TAU/8);
   line (end.x,end.y,end.x-arrow.x,end.y-arrow.y);
 }
+
 class ParticleManager 
 {
     ArrayList<Particle> particles = new ArrayList<Particle>();
@@ -36,7 +37,7 @@ class ParticleManager
 
     class Particle 
     {
-      float size = random(10, 15);
+      float size = random(7, 12);
       float timer = random(0, TAU);
       float spinRate = random(0.2,0.7);
       vec2 pos = new vec2(0, 0);
@@ -46,10 +47,12 @@ class ParticleManager
       Particle(vec2 tempPos, color tempColor) 
       {
         pos = tempPos.copy();
-        rgb = lerpColor(tempColor,
-                        color(red(tempColor)-50,
-                            green(tempColor)-50,
-                             blue(tempColor)-20),random(0.5,1));
+        vel.x = (random(-0.5,0.5));
+        vel.y = (random(-1.1,0.7));
+        float shift = random(0.3,0.9);
+        rgb = color(red(tempColor)*shift,
+                  green(tempColor)*shift,
+                   blue(tempColor)*shift);
       }
 
 
@@ -60,7 +63,7 @@ class ParticleManager
         {
           vec2 push = new vec2(random(0,TAU));
           vel.y += push.y/2;
-          vel.x += push.x/2;
+          vel.x += push.x;
         }
         vel.y += 0.1;
         pos.add(vel);
