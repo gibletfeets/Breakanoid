@@ -198,15 +198,11 @@ class paddleObject
     if (gameBall != null)  
     {
       vec2 relative = new vec2(gameBall.pos.x-pos.x,gameBall.pos.y-pos.y);
-      relative.x = map(relative.x,-pos.x,pos.x,-size.x/2,size.x/2);
-      println(relative.x);
-      ellipse(constrain(xTarget+((pos.x+size.x/2 - 6)*(relative.x)/gameWidth),
-                                             pos.x-(size.x/2 - 6),
-                                             pos.x+(size.x/2 - 6)),
-                                             map(gameBall.pos.y, 0, 800, 
-                                             pos.y-4 - (4/(size.x/2) * sqrt(abs(sq(size.x/2)-sq(relative.x)))),
-                                             pos.y-4 + (2/(size.x/2) * sqrt(abs(sq(size.x/2)-sq(relative.x)))))+3, 
-                                             3,3);
+      float angle = atan2(relative.y,relative.x);
+      float scalingFactor = map(relative.mag(),0,435,0,1);
+      relative.set((size.x/2-3)*cos(angle),4*sin(angle));
+      relative.y *= scalingFactor;
+      ellipse(pos.x+relative.x,pos.y+relative.y,3,3);
 
     }else                   ellipse(constrain(xTarget,pos.x-(size.x/2 - 6),pos.x+(size.x/2 - 6)),pos.y,3,3);
    
